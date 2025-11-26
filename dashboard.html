@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CareSync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#0ea5e9',
+                            700: '#0284c7',
+                            800: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            overflow-x: hidden;
+        }
+        @media (max-width: 640px) {
+            input, textarea, select {
+                font-size: 16px !important;
+            }
+        }
+        button, a {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 sm:h-16">
+                <div class="flex items-center">
+                    <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                        CareSync
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <a href="history.html" class="p-2 text-gray-600 hover:text-primary-600 transition-colors" title="Activity History">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </a>
+                    <span id="username" class="text-xs sm:text-sm text-gray-700 font-medium hidden sm:inline"></span>
+                    <button onclick="logout()" class="text-xs sm:text-sm text-gray-700 hover:text-primary-600 transition-colors font-medium px-2 sm:px-0">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-4 sm:mb-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
+            <p class="text-sm sm:text-base text-gray-600">Overview of your children's health records and recommendations</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
+                <div class="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-blue-500 rounded-lg p-2 sm:p-3">
+                            <svg class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 sm:ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs sm:text-sm font-medium text-gray-600 truncate">Children</dt>
+                                <dd id="childrenCount" class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow">
+                <div class="p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-green-500 rounded-lg p-2 sm:p-3">
+                            <svg class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 sm:ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs sm:text-sm font-medium text-gray-600 truncate">Recent Records</dt>
+                                <dd id="recordsCount" class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow sm:col-span-2 lg:col-span-1">
+                <div class="p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-purple-500 rounded-lg p-2 sm:p-3">
+                            <svg class="h-5 w-5 sm:h-6 sm:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 sm:ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs sm:text-sm font-medium text-gray-600 truncate">Active Recommendations</dt>
+                                <dd id="recommendationsCount" class="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="px-4 sm:px-6 py-3 sm:py-5 bg-gradient-to-r from-primary-50 to-purple-50 border-b border-gray-200">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900">Children</h3>
+                </div>
+                <div class="px-4 sm:px-6 py-4 sm:py-5">
+                    <div id="childrenList">
+                        <p class="text-sm text-gray-500">Loading...</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
+                        <a href="children/index.html" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-all">
+                            View All
+                            <svg class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        <a href="children/new.html" class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-primary-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all">
+                            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Child
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div class="px-4 sm:px-6 py-3 sm:py-5 bg-gradient-to-r from-green-50 to-blue-50 border-b border-gray-200">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-900">Recent Health Records</h3>
+                </div>
+                <div class="px-4 sm:px-6 py-4 sm:py-5">
+                    <div id="recordsList">
+                        <p class="text-sm text-gray-500">Loading...</p>
+                    </div>
+                    <a href="health-records/index.html" class="mt-4 inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-primary-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all">
+                        View All Records
+                        <svg class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="recommendationsSection" class="mt-4 sm:mt-6 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden" style="display: none;">
+            <div class="px-4 sm:px-6 py-3 sm:py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">Active Recommendations</h3>
+            </div>
+            <div class="px-4 sm:px-6 py-4 sm:py-5">
+                <div id="recommendationsList"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="fixed top-4 right-4 z-50"></div>
+
+    <!-- Загрузка конфигурации перед основными скриптами -->
+    <script src="config.js"></script>
+    <script type="module">
+        import { authHelper, toast } from './js/auth.js';
+        import { children, healthRecords, recommendations } from './js/api.js';
+        import { formatDate } from './js/auth.js';
+        
+        async function init() {
+            if (!await authHelper.requireAuth()) return;
+            
+            const user = await authHelper.getCurrentUser();
+            if (user) {
+                document.getElementById('username').textContent = user.username;
+            }
+            
+            await loadData();
+        }
+        
+        async function loadData() {
+            try {
+                const [childrenData, recordsData, recommendationsData] = await Promise.all([
+                    children.getAll(),
+                    healthRecords.getAll({ limit: 5 }),
+                    recommendations.getAll({ is_active: true })
+                ]);
+                
+                const childrenList = childrenData.results || childrenData;
+                const recordsList = recordsData.results || recordsData.slice(0, 5);
+                const recommendationsList = recommendationsData.results || recommendationsData;
+                
+                document.getElementById('childrenCount').textContent = childrenList.length;
+                document.getElementById('recordsCount').textContent = recordsList.length;
+                document.getElementById('recommendationsCount').textContent = recommendationsList.length;
+                
+                renderChildren(childrenList);
+                renderRecords(recordsList);
+                if (recommendationsList.length > 0) {
+                    renderRecommendations(recommendationsList);
+                }
+            } catch (error) {
+                toast.error('Failed to load data');
+            }
+        }
+        
+        function renderChildren(childrenList) {
+            const container = document.getElementById('childrenList');
+            if (childrenList.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">No children registered</p>';
+                return;
+            }
+            
+            container.innerHTML = '<ul class="divide-y divide-gray-200">' + childrenList.map(child => `
+                <li class="py-3">
+                    <a href="children/detail.html?id=${child.id}" class="block hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-base font-semibold text-gray-900">
+                                    ${child.first_name} ${child.last_name}
+                                </p>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    Age: ${child.age} years
+                                    ${child.parent_username ? ` • Parent: ${child.parent_username}` : ''}
+                                </p>
+                            </div>
+                            <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </a>
+                </li>
+            `).join('') + '</ul>';
+        }
+        
+        function renderRecords(recordsList) {
+            const container = document.getElementById('recordsList');
+            if (recordsList.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">No recent records</p>';
+                return;
+            }
+            
+            container.innerHTML = '<ul class="divide-y divide-gray-200">' + recordsList.map(record => `
+                <li class="py-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <p class="text-base font-semibold text-gray-900">${record.title}</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                ${record.record_type}
+                                ${record.child_name ? ` • Child: ${record.child_name}` : ''}
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ml-4 ${
+                            record.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                            record.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                            record.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">
+                            ${record.priority}
+                        </span>
+                    </div>
+                </li>
+            `).join('') + '</ul>';
+        }
+        
+        function renderRecommendations(recommendationsList) {
+            const container = document.getElementById('recommendationsList');
+            const section = document.getElementById('recommendationsSection');
+            section.style.display = 'block';
+            
+            container.innerHTML = '<ul class="divide-y divide-gray-200">' + recommendationsList.map(rec => `
+                <li class="py-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <p class="text-base font-semibold text-gray-900">${rec.title}</p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                ${rec.recommendation_type}
+                                ${rec.child_name ? ` • Child: ${rec.child_name}` : ''}
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ml-4 ${
+                            rec.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                            rec.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                            rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                        }">
+                            ${rec.priority}
+                        </span>
+                    </div>
+                </li>
+            `).join('') + '</ul>';
+        }
+        
+        window.logout = function() {
+            authHelper.logout();
+        };
+        
+        init();
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,65 @@
+# PHP
+Backend-Standalone/database.sqlite
+Backend-Standalone/*.log
+Backend-Standalone/vendor/
+*.sqlite
+*.sqlite3
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+backend/venv/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Archives
+*.rar
+*.zip
+*.7z
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Personal paths (user-specific)
+# Remove personal PHP paths from start-server.bat before committing
+
+# Build outputs
+dist/
+build/
+*.exe

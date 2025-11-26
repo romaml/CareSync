@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CareSync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#0ea5e9',
+                            700: '#0284c7',
+                            800: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        @media (max-width: 640px) {
+            input, textarea, select {
+                font-size: 16px !important;
+            }
+        }
+        button, a {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-4xl font-extrabold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                CareSync
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Sign in to your account
+            </p>
+        </div>
+        
+        <div id="loginForm">
+            <form class="mt-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-200 p-8" onsubmit="handleLogin(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            Username
+                        </label>
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            required
+                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            placeholder="Enter your username"
+                        />
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            Password
+                        </label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                            placeholder="Enter your password"
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <button
+                        type="submit"
+                        id="loginBtn"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
+                    >
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="twoFactorForm" style="display: none;">
+            <form class="mt-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-200 p-8" onsubmit="handle2FA(event)">
+                <div>
+                    <label for="token" class="block text-sm font-medium text-gray-700 mb-2">
+                        2FA Token
+                    </label>
+                    <input
+                        id="token"
+                        name="token"
+                        type="text"
+                        required
+                        class="mt-1 appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                        placeholder="Enter 6-digit code"
+                    />
+                </div>
+                <div>
+                    <button
+                        type="submit"
+                        id="verifyBtn"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 shadow-md hover:shadow-lg transition-all"
+                    >
+                        Verify
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="toastContainer" class="fixed top-4 right-4 z-50"></div>
+    
+    <!-- Загрузка конфигурации перед основными скриптами -->
+    <script src="config.js"></script>
+    <script type="module">
+        import { auth } from './js/api.js';
+        import { toast } from './js/auth.js';
+        
+        let loginData = {};
+        
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+            
+            try {
+                loginData = { username, password };
+                const response = await auth.login(username, password);
+                
+                if (response.requires_2fa) {
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('twoFactorForm').style.display = 'block';
+                } else {
+                    localStorage.setItem('access_token', response.access);
+                    localStorage.setItem('refresh_token', response.refresh);
+                    toast.success('Logged in successfully');
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed';
+                
+                // Обработка различных типов ошибок
+                if (error && typeof error === 'object') {
+                    // Приоритет 1: детальное сообщение об ошибке
+                    if (error.detail) {
+                        errorMessage = error.detail;
+                    }
+                    // Приоритет 2: общее сообщение об ошибке
+                    else if (error.error) {
+                        errorMessage = error.error;
+                    }
+                    // Приоритет 3: сообщение из исключения
+                    else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    // Приоритет 4: массив ошибок (может быть от Django)
+                    else if (Array.isArray(error.non_field_errors)) {
+                        errorMessage = error.non_field_errors.join(', ');
+                    }
+                    // Приоритет 5: другие поля ошибки
+                    else if (error.username) {
+                        errorMessage = `Username: ${Array.isArray(error.username) ? error.username.join(', ') : error.username}`;
+                    } else if (error.password) {
+                        errorMessage = `Password: ${Array.isArray(error.password) ? error.password.join(', ') : error.password}`;
+                    }
+                } else if (typeof error === 'string') {
+                    errorMessage = error;
+                }
+                
+                // Проверка на проблемы с подключением
+                const errorStr = errorMessage.toLowerCase();
+                if (errorStr.includes('failed to fetch') || 
+                    errorStr.includes('networkerror') ||
+                    errorStr.includes('cors') ||
+                    errorStr.includes('network request failed') ||
+                    errorStr.includes('не удалось подключиться')) {
+                    errorMessage = 'Не удалось подключиться к серверу. Убедитесь, что backend запущен на http://localhost:8000';
+                }
+                
+                // Проверка на специфичные ошибки аутентификации
+                if (errorStr.includes('invalid credentials') || 
+                    errorStr.includes('неверные учетные данные')) {
+                    errorMessage = 'Неверное имя пользователя или пароль';
+                }
+                
+                toast.error(errorMessage);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign in';
+            }
+        };
+        
+        window.handle2FA = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('verifyBtn');
+            const token = document.getElementById('token').value;
+            
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            
+            try {
+                const response = await auth.verify2FA(loginData.username, loginData.password, token);
+                localStorage.setItem('access_token', response.access);
+                localStorage.setItem('refresh_token', response.refresh);
+                toast.success('Logged in successfully');
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                console.error('2FA error:', error);
+                let errorMessage = '2FA verification failed';
+                
+                // Обработка различных типов ошибок
+                if (error && typeof error === 'object') {
+                    if (error.detail) {
+                        errorMessage = error.detail;
+                    } else if (error.error) {
+                        errorMessage = error.error;
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    } else if (Array.isArray(error.non_field_errors)) {
+                        errorMessage = error.non_field_errors.join(', ');
+                    } else if (error.two_factor_token) {
+                        errorMessage = `2FA Token: ${Array.isArray(error.two_factor_token) ? error.two_factor_token.join(', ') : error.two_factor_token}`;
+                    }
+                } else if (typeof error === 'string') {
+                    errorMessage = error;
+                }
+                
+                // Проверка на проблемы с подключением
+                const errorStr = errorMessage.toLowerCase();
+                if (errorStr.includes('failed to fetch') || 
+                    errorStr.includes('networkerror') ||
+                    errorStr.includes('cors') ||
+                    errorStr.includes('network request failed') ||
+                    errorStr.includes('не удалось подключиться')) {
+                    errorMessage = 'Не удалось подключиться к серверу. Убедитесь, что backend запущен на http://localhost:8000';
+                }
+                
+                // Проверка на специфичные ошибки 2FA
+                if (errorStr.includes('invalid 2fa token') || 
+                    errorStr.includes('неверный токен')) {
+                    errorMessage = 'Неверный код 2FA. Пожалуйста, проверьте код и попробуйте снова.';
+                }
+                
+                toast.error(errorMessage);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify';
+            }
+        };
+    </script>
+</body>
+</html>
+
